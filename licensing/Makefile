@@ -1,4 +1,6 @@
 SHELL := bash
+.PHONY: build clean download run linux windows mac default compress compress-output compress-linux compress-windows compress-mac compress-all format 
+.DEFAULT_GOAL := default
 
 clean:
 	@echo "Cleaning up..."
