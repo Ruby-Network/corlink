@@ -16,6 +16,14 @@ type Response struct {
     Message string `json:"message"`
 }
 
+func verifyHeaders(headers []string, r *http.Request) error {
+    for _, header := range headers {
+        if r.Header.Get(header) == "" {
+            return errors.New("Missing header " + header)
+        }
+    }
+    return nil
+}
 
 func verifyContentType(w http.ResponseWriter, r *http.Request) error {
     if r.Header.Get("Content-Type") != "application/json" {
@@ -30,6 +38,12 @@ func verifyContentType(w http.ResponseWriter, r *http.Request) error {
 func createApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization, User"}, r)
+    if err != nil { 
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     user := r.Header.Get("User") 
     isAdminKey := database.OnlyAdmin(db, key[7:])
@@ -58,6 +72,12 @@ func createApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func deleteApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     isAdminKey := database.OnlyAdmin(db, key[7:])
     if !isAdminKey {
@@ -84,6 +104,12 @@ func deleteApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func getApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization", "User"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     user := r.Header.Get("User")
     isAdminKey := database.OnlyAdmin(db, key[7:])
@@ -116,6 +142,12 @@ func getApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func generateRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     user := database.GetUserByApiKey(db, key[7:])
     key = strings.ToLower(key[:6]) + key[6:]
@@ -133,6 +165,12 @@ func generateRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func deleteRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization", "Key"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     keyToVerify := r.Header.Get("Key")
     user := database.GetUserByApiKey(db, key[7:])
@@ -151,6 +189,12 @@ func deleteRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func verifyRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
+    err = verifyHeaders([]string{"Authorization", "Key"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     key := r.Header.Get("Authorization")
     keyToVerify := r.Header.Get("Key")
     //remove the "Bearer " from the
