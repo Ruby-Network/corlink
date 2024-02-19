@@ -5,6 +5,8 @@ import (
     "net/http"
     "encoding/json"
     "errors"
+    "strings"
+    "fmt"
     "gorm.io/gorm"
     database "github.com/ruby-network/corlink/licensing/internal/db"
 )
@@ -31,7 +33,10 @@ func generateRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     key := r.Header.Get("Authorization")
     //remove the "Bearer " from the key 
     user := database.GetUserByApiKey(db, key[7:])
-    if key != "Bearer " + user.ApiKey || key == "" {
+    //lowercase bearer so that it isn't case sensitive
+    key = strings.ToLower(key[:6]) + key[6:]
+    fmt.Println(key)
+    if key != "bearer " + user.ApiKey || key == "" {
         w.WriteHeader(http.StatusUnauthorized)
         json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
         return
