@@ -3,10 +3,10 @@ package db
 import (
     "gorm.io/gorm"
     "gorm.io/driver/sqlite"
-    "fmt"
     "github.com/dchest/uniuri"
     "os"
     "time"
+    "github.com/fatih/color"
 )
 
 type User struct {
@@ -75,7 +75,7 @@ func GetUserByApiKey(db *gorm.DB, key string) User {
 func Init() *gorm.DB { 
     db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
     if err != nil {
-        fmt.Println("Error connecting to database")
+        color.Red("Failed to connect to database")
         return nil
     }
     //if the tables don't exist, create them
@@ -87,8 +87,9 @@ func Init() *gorm.DB {
     }
     //create the admin user if it doesn't exist
     if db.Where("username = ?", "admin").First(&User{}).RowsAffected == 0 {
-        fmt.Println("Creating admin user")
+        color.Yellow("Admin user does not exist, creating one")
         db.Create(&User{Username: "admin", ApiKey: os.Getenv("ADMIN_KEY")})
+        color.Green("Admin user created")
     }
     //run the function to delete expired keys in a goroutine
     go DeleteExpiredKeys(db)
