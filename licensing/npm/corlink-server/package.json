@@ -1,0 +1,30 @@
+{
+    "name": "corlink-server",
+    "version": "1.0.0",
+    "description": "The licensing server for Corlink",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ruby-network/corlink.git"
+    },
+    "scripts": {
+        "postinstall": "node install.js"
+    },
+    "main": "lib/index.js",
+    "engines": {
+        "node": ">= 14.0.0"
+    },
+    "bin": {
+        "corlink-server": "bin/corlink-server"
+    },
+    "optionalDependencies": {
+        "@rubynetwork/corlink-darwin-x64": "1.0.0",
+        "@rubynetwork/corlink-darwin-arm64": "1.0.0",
+        "@rubynetwork/corlink-linux-x64": "1.0.0",
+        "@rubynetwork/corlink-linux-ia32": "1.0.0",
+        "@rubynetwork/corlink-linux-arm": "1.0.0",
+        "@rubynetwork/corlink-linux-arm64": "1.0.0",
+        "@rubynetwork/corlink-win32-x64": "1.0.0",
+        "@rubynetwork/corlink-win32-ia32": "1.0.0"
+    },
+    "license": "AGPL-3.0"
+}

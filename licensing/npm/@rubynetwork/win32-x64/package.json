@@ -1,0 +1,20 @@
+{
+    "name": "@rubynetwork/corlink-windows-x64",
+    "version": "1.0.0",
+    "description": "The built binary of corlink server for windows x64",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ruby-network/corlink.git"
+    },
+    "license": "AGPL-3.0",
+    "preferUnplugged": true,
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "os": [
+        "win32"
+    ],
+    "cpu": [
+        "x64"
+    ]
+}

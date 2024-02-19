@@ -1,0 +1,20 @@
+{
+    "name": "@rubynetwork/corlink-darwin-arm64",
+    "version": "1.0.0",
+    "description": "The built binary of corlink server for macOS arm64",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ruby-network/corlink.git"
+    },
+    "license": "AGPL-3.0",
+    "preferUnplugged": true,
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "os": [
+        "darwin"
+    ],
+    "cpu": [
+        "arm64"
+    ]
+}
