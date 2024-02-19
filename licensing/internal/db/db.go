@@ -6,6 +6,7 @@ import (
     "fmt"
     "github.com/dchest/uniuri"
     "os"
+    "time"
 )
 
 type User struct {
@@ -18,7 +19,22 @@ type Key struct {
     gorm.Model
     Key string
     User User `gorm:"foreignKey:ID"`
+    Expires time.Time
 }
+
+
+func deleteExpiredKeys(db *gorm.DB) {
+    //delete keys that have expired from about 7 or more days ago
+    db.Where("expires < ?", time.Now().AddDate(0, 0, -7)).Delete(&Key{})
+}
+
+func DeleteExpiredKeys(db *gorm.DB) {
+    for {
+        deleteExpiredKeys(db)
+        time.Sleep(24 * time.Hour)
+    }
+}
+
 
 func GenerateKey(db *gorm.DB, user User) string {
     key := uniuri.NewLen(6)
@@ -30,8 +46,9 @@ func GenerateKey(db *gorm.DB, user User) string {
             return GenerateKey(db, user)
         }
     }
-    db.Create(&Key{Key: key, User: user})
-    fmt.Println("Generated key: " + key)
+    //expires in a year 
+    expires := time.Now().AddDate(1, 0, 0)
+    db.Create(&Key{Key: key, User: user, Expires: expires})
     return string(key)
 }
 
@@ -73,5 +90,7 @@ func Init() *gorm.DB {
         fmt.Println("Creating admin user")
         db.Create(&User{Username: "admin", ApiKey: os.Getenv("ADMIN_KEY")})
     }
+    //run the function to delete expired keys in a goroutine
+    go DeleteExpiredKeys(db)
     return db
 }

@@ -6,7 +6,6 @@ import (
     "encoding/json"
     "errors"
     "strings"
-    "fmt"
     "gorm.io/gorm"
     database "github.com/ruby-network/corlink/licensing/internal/db"
 )
