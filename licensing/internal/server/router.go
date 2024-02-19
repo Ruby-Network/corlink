@@ -31,11 +31,8 @@ func generateRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
     key := r.Header.Get("Authorization")
-    //remove the "Bearer " from the key 
     user := database.GetUserByApiKey(db, key[7:])
-    //lowercase bearer so that it isn't case sensitive
     key = strings.ToLower(key[:6]) + key[6:]
-    fmt.Println(key)
     if key != "bearer " + user.ApiKey || key == "" {
         w.WriteHeader(http.StatusUnauthorized)
         json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})

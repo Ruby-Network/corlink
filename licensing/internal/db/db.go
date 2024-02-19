@@ -5,6 +5,7 @@ import (
     "gorm.io/driver/sqlite"
     "fmt"
     "github.com/dchest/uniuri"
+    "os"
 )
 
 type User struct {
@@ -54,16 +55,23 @@ func GetUserByApiKey(db *gorm.DB, key string) User {
     return user
 }
 
-//retunr the db and the type User
-func Init() *gorm.DB {
-    key := generateApiKey()
-    fmt.Println("Generated admin key: " + key)
+func Init() *gorm.DB { 
     db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
     if err != nil {
         fmt.Println("Error connecting to database")
         return nil
     }
-    db.AutoMigrate(&User{}, &Key{})
-    db.Create(&User{Username: "admin", ApiKey: key})
+    //if the tables don't exist, create them
+    if db.Migrator().HasTable(&User{}) == false {
+        db.Migrator().CreateTable(&User{})
+    }
+    if db.Migrator().HasTable(&Key{}) == false {
+        db.Migrator().CreateTable(&Key{})
+    }
+    //create the admin user if it doesn't exist
+    if db.Where("username = ?", "admin").First(&User{}).RowsAffected == 0 {
+        fmt.Println("Creating admin user")
+        db.Create(&User{Username: "admin", ApiKey: os.Getenv("ADMIN_KEY")})
+    }
     return db
 }
