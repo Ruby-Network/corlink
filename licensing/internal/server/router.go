@@ -5,6 +5,8 @@ import (
     "net/http"
     "encoding/json"
     "errors"
+    "gorm.io/gorm"
+    database "github.com/ruby-network/corlink/licensing/internal/db"
 )
 
 type Response struct {
@@ -12,8 +14,8 @@ type Response struct {
     Message string `json:"message"`
 }
 
+
 func verifyContentType(w http.ResponseWriter, r *http.Request) error {
-    //only accept application/json 
     if r.Header.Get("Content-Type") != "application/json" {
         w.WriteHeader(http.StatusUnsupportedMediaType)
         json.NewEncoder(w).Encode(Response{"error", "Unsupported Media Type"})
@@ -23,17 +25,20 @@ func verifyContentType(w http.ResponseWriter, r *http.Request) error {
     return nil
 }
 
-func generateRoute (w http.ResponseWriter, r *http.Request) {
+func generateRoute (w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
     key := r.Header.Get("Authorization")
-    if key != "Bearer " + "admin" || key == "" {
+    //remove the "Bearer " from the key 
+    user := database.GetUserByApiKey(db, key[7:])
+    if key != "Bearer " + user.ApiKey || key == "" {
         w.WriteHeader(http.StatusUnauthorized)
         json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
         return
     }
     w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(Response{"ok", "License generated"})
+    license := database.GenerateKey(db, user)
+    json.NewEncoder(w).Encode(Response{"ok", license})
     return
 }
 
@@ -42,9 +47,9 @@ func indexRoute(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(Response{"ok", "Server is running"})
 }
 
-func InitRoutes(dir string) {
+func InitRoutes(dir string, db *gorm.DB) {
     r := chi.NewRouter()
     r.Get(dir, indexRoute)
-    r.Post(dir + "generate", generateRoute)
+    r.Post(dir + "generate", func(w http.ResponseWriter, r *http.Request) { generateRoute(w, r, db) })
     http.Handle(dir, r)
 }
