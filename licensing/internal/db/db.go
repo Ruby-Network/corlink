@@ -97,8 +97,27 @@ func DeleteUser(db *gorm.DB, key string) bool {
     if err != nil {
         return false
     }
+    if user.Username == "admin" {
+        return false
+    }
     db.Delete(&user)
     return true
+}
+
+func UpdateUserKey(db *gorm.DB, key string) string {
+    var user User 
+    err := db.Where("api_key = ?", key).First(&user).Error
+    if err != nil {
+        return ""
+    }
+    //if the user is the admin, don't update the key 
+    if user.Username == "admin" {
+        return string(user.ApiKey)
+    }
+    newKey := generateApiKey()
+    user.ApiKey = newKey
+    db.Save(&user)
+    return string(newKey)
 }
 
 func GetApiKey(db *gorm.DB, username string) (string, bool) {

@@ -20,7 +20,7 @@ func verifyHeaders(headers []string, r *http.Request) error {
     for _, header := range headers {
         if r.Header.Get(header) == "" {
             return errors.New("Missing header " + header)
-        }
+        } 
     }
     return nil
 }
@@ -90,13 +90,13 @@ func deleteApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
         return
     } 
-    w.WriteHeader(http.StatusOK)
     userDeleted := database.DeleteUser(db, key[7:])
     if !userDeleted {
         w.WriteHeader(http.StatusNotFound)
         json.NewEncoder(w).Encode(Response{"error", "User not found"})
         return
     }
+    w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(Response{"ok", "Deleted"})
     return
 }
@@ -135,6 +135,33 @@ func getApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         json.NewEncoder(w).Encode(Response{"error", "User not found"})
         return
     }
+    json.NewEncoder(w).Encode(Response{"ok", keyFromDB})
+    return
+}
+
+func updateApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+    err := verifyContentType(w, r)
+    if err != nil { return }
+    err = verifyHeaders([]string{"Authorization"}, r)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
+    key := r.Header.Get("Authorization")
+    isAdminKey := database.OnlyAdmin(db, key[7:])
+    if !isAdminKey {
+        w.WriteHeader(http.StatusUnauthorized)
+        json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
+        return
+    }
+    if key == "" {
+        w.WriteHeader(http.StatusUnauthorized)
+        json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
+        return
+    }
+    w.WriteHeader(http.StatusOK)
+    keyFromDB := database.UpdateUserKey(db, key[7:])
     json.NewEncoder(w).Encode(Response{"ok", keyFromDB})
     return
 }
@@ -228,5 +255,6 @@ func InitRoutes(dir string, db *gorm.DB) {
     r.Post(dir + "create-user", func(w http.ResponseWriter, r *http.Request) { createApiKey(w, r, db) })
     r.Post(dir + "delete-user", func(w http.ResponseWriter, r *http.Request) { deleteApiKey(w, r, db) })
     r.Post(dir + "get-user", func(w http.ResponseWriter, r *http.Request) { getApiKey(w, r, db) })
+    r.Post(dir + "update-user", func(w http.ResponseWriter, r *http.Request) { updateApiKey(w, r, db) })
     http.Handle(dir, r)
 }
