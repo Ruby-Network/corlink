@@ -2,6 +2,7 @@ package db
 
 import (
     "gorm.io/gorm"
+    "gorm.io/gorm/logger"
     "gorm.io/driver/sqlite"
     "github.com/dchest/uniuri"
     "os"
@@ -130,7 +131,10 @@ func GetApiKey(db *gorm.DB, username string) (string, bool) {
 }
 
 func Init() *gorm.DB { 
-    db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+    db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
+        Logger: logger.Default.LogMode(logger.Silent),
+        SkipDefaultTransaction: true,
+    })
     if err != nil {
         color.Red("Failed to connect to database")
         return nil
