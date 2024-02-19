@@ -14,24 +14,24 @@ run:
 
 linux: download
 	@echo "Building for Linux..."
-	@GOOS=linux GOARCH=amd64 go build -o bin/corlink-server main.go
-	@GOOS=linux GOARCH=arm go build -o bin/corlink-server-arm main.go
-	@GOOS=linux GOARCH=arm64 go build -o bin/corlink-server-arm64 main.go
-	@GOOS=linux GOARCH=386 go build -o bin/corlink-server-386 main.go
+	@GOOS=linux GOARCH=amd64 go build -o bin/corlink-server -ldflags "-s -w" main.go
+	@GOOS=linux GOARCH=arm go build -o bin/corlink-server-arm -ldflags "-s -w" main.go
+	@GOOS=linux GOARCH=arm64 go build -o bin/corlink-server-arm64 -ldflags "-s -w" main.go
+	@GOOS=linux GOARCH=386 go build -o bin/corlink-server-386 -ldflags "-s -w" main.go
 
 windows: download
 	@echo "Building for Windows..."
-	@GOOS=windows GOARCH=amd64 go build -o bin/corlink-server.exe main.go
-	@GOOS=windows GOARCH=386 go build -o bin/corlink-server-386.exe main.go
+	@GOOS=windows GOARCH=amd64 go build -o bin/corlink-server.exe -ldflags "-s -w" main.go
+	@GOOS=windows GOARCH=386 go build -o bin/corlink-server-386.exe -ldflags "-s -w" main.go
 
 mac: download 
 	@echo "Building for Mac..."
-	@GOOS=darwin GOARCH=amd64 go build -o bin/corlink-server-mac main.go
-	@GOOS=darwin GOARCH=arm64 go build -o bin/corlink-server-mac-arm64 main.go
+	@GOOS=darwin GOARCH=amd64 go build -o bin/corlink-server-mac -ldflags "-s -w" main.go
+	@GOOS=darwin GOARCH=arm64 go build -o bin/corlink-server-mac-arm64 -ldflags "-s -w" main.go
 
 default: clean download 
 	@echo "Building for current OS..."
-	@go build -o bin/corlink-server main.go
+	@go build -o bin/corlink-server -ldflags "-s -w" main.go
 
 compress:
 	@echo "Compressing with no output file..."
