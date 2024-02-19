@@ -21,9 +21,26 @@ type Key struct {
 
 func GenerateKey(db *gorm.DB, user User) string {
     key := uniuri.NewLen(6)
+    //get all the keys for the user to make sure we don't generate the same key twice
+    var keys []Key 
+    db.Where("ID = ?", user.ID).Find(&keys)
+    for _, k := range keys {
+        if k.Key == key {
+            return GenerateKey(db, user)
+        }
+    }
     db.Create(&Key{Key: key, User: user})
     fmt.Println("Generated key: " + key)
     return string(key)
+}
+
+func VerifyKey(db *gorm.DB, key string) bool {
+    var k Key
+    db.Where("key = ?", key).First(&k)
+    if k.ID == 0 {
+        return false
+    }
+    return true
 }
 
 func generateApiKey() string {
@@ -40,6 +57,7 @@ func GetUserByApiKey(db *gorm.DB, key string) User {
 //retunr the db and the type User
 func Init() *gorm.DB {
     key := generateApiKey()
+    fmt.Println("Generated admin key: " + key)
     db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
     if err != nil {
         fmt.Println("Error connecting to database")
