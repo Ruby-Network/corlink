@@ -61,6 +61,10 @@ func VerifyKey(db *gorm.DB, key string) bool {
     return true
 }
 
+func DeleteKey(db *gorm.DB, key string) {
+    db.Where("key = ?", key).Delete(&Key{})
+}
+
 func generateApiKey() string {
     key := uniuri.NewLen(64)
     return string(key)
@@ -70,6 +74,40 @@ func GetUserByApiKey(db *gorm.DB, key string) User {
     var user User 
     db.Where("api_key = ?", key).First(&user)
     return user
+}
+
+func OnlyAdmin(db *gorm.DB, key string) bool {
+    var user User 
+    db.Where("api_key = ?", key).First(&user)
+    if user.Username == "admin" {
+        return true
+    }
+    return false
+}
+
+func CreateUser(db *gorm.DB, username string) string {
+    key := generateApiKey()
+    db.Create(&User{Username: username, ApiKey: key})
+    return string(key)
+}
+
+func DeleteUser(db *gorm.DB, key string) bool {
+    var user User 
+    err := db.Where("api_key = ?", key).First(&user).Error
+    if err != nil {
+        return false
+    }
+    db.Delete(&user)
+    return true
+}
+
+func GetApiKey(db *gorm.DB, username string) (string, bool) {
+    var user User 
+    err := db.Where("username = ?", username).First(&user).Error
+    if err != nil {
+        return "", false
+    }
+    return string(user.ApiKey), true
 }
 
 func Init() *gorm.DB { 
