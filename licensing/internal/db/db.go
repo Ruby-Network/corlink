@@ -3,10 +3,12 @@ package db
 import (
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
+    "gorm.io/driver/postgres"
     "gorm.io/driver/sqlite"
     "github.com/dchest/uniuri"
     "os"
     "time"
+    "fmt"
     "github.com/fatih/color"
 )
 
@@ -130,14 +132,26 @@ func GetApiKey(db *gorm.DB, username string) (string, bool) {
     return string(user.ApiKey), true
 }
 
-func Init() *gorm.DB { 
-    db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
-        Logger: logger.Default.LogMode(logger.Silent),
-        SkipDefaultTransaction: true,
-    })
-    if err != nil {
-        color.Red("Failed to connect to database")
-        return nil
+func Init(lite bool) *gorm.DB {
+    //blank assignment to avoid error 
+    var db *gorm.DB
+    var err error
+    if lite {
+        db, err = gorm.Open(sqlite.Open("corlink.db"), &gorm.Config{
+            Logger: logger.Default.LogMode(logger.Silent),
+            SkipDefaultTransaction: true,
+        })
+        if err != nil { color.Red("Failed to connect to database"); return nil }
+    } else {
+        dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_NAME"), os.Getenv("DB_PASS"))
+        db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+            Logger: logger.Default.LogMode(logger.Silent),
+            SkipDefaultTransaction: true,
+        })
+        if err != nil {
+            color.Red("Failed to connect to database")
+            return nil
+        }
     }
     //if the tables don't exist, create them
     if db.Migrator().HasTable(&User{}) == false {

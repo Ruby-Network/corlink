@@ -1,0 +1,28 @@
+version: '3'
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: corlink
+      POSTGRES_PASSWORD: corlink
+      POSTGRES_DB: corlink
+    volumes:
+      - ./db:/var/lib/postgresql/data
+  
+  corlink-server:
+    restart: unless-stopped
+    image: ghcr.io/ruby-network/corlink-server:latest
+    depends_on:
+      - postgres
+    ports:
+      # DO NOT CHANGE 8080 
+      - "yourporthere:8080"
+    environment:
+      ADMIN_KEY: "changeme"
+      # DO NOT CHANGE THE BELOW
+      DB_HOST: "postgres"
+      DB_USER: "corlink"
+      DB_PASS: "corlink"
+      DB_NAME: "corlink"
+      DB_PORT: 5432
