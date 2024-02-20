@@ -14,14 +14,15 @@ import (
 
 type User struct {
     gorm.Model
-    Username string
+    Username string `gorm:"unique;not null"`
     ApiKey string
+    Keys []Key `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Key struct {
     gorm.Model
     Key string
-    User User `gorm:"foreignKey:ID"`
+    UserID uint
     Expires time.Time
 }
 
@@ -43,7 +44,7 @@ func GenerateKey(db *gorm.DB, user User) string {
     key := uniuri.NewLen(6)
     //get all the keys for the user to make sure we don't generate the same key twice
     var keys []Key 
-    db.Where("ID = ?", user.ID).Find(&keys)
+    db.Where("user_id = ?", user.ID).Find(&keys)
     for _, k := range keys {
         if k.Key == key {
             return GenerateKey(db, user)
@@ -51,7 +52,7 @@ func GenerateKey(db *gorm.DB, user User) string {
     }
     //expires in a year 
     expires := time.Now().AddDate(1, 0, 0)
-    db.Create(&Key{Key: key, User: user, Expires: expires})
+    db.Create(&Key{Key: string(key), UserID: user.ID, Expires: expires})
     return string(key)
 }
 
@@ -88,28 +89,35 @@ func OnlyAdmin(db *gorm.DB, key string) bool {
     return false
 }
 
-func CreateUser(db *gorm.DB, username string) string {
+func CreateUser(db *gorm.DB, username string) (error, string) {
     key := generateApiKey()
-    db.Create(&User{Username: username, ApiKey: key})
-    return string(key)
+    err := db.Create(&User{Username: username, ApiKey: key}).Error
+    if err != nil {
+        error := fmt.Errorf("Username already exists")
+        return error, ""
+    }
+    return nil, string(key)
 }
 
-func DeleteUser(db *gorm.DB, key string) bool {
+func DeleteUser(db *gorm.DB, username string) bool {
     var user User 
-    err := db.Where("api_key = ?", key).First(&user).Error
+    err := db.Where("username = ?", username).First(&user).Error
     if err != nil {
         return false
     }
     if user.Username == "admin" {
         return false
     }
-    db.Delete(&user)
+    err = db.Unscoped().Delete(&user).Error 
+    if err != nil {
+        return false
+    }
     return true
 }
 
-func UpdateUserKey(db *gorm.DB, key string) string {
+func UpdateUserKey(db *gorm.DB, username string) string {
     var user User 
-    err := db.Where("api_key = ?", key).First(&user).Error
+    err := db.Where("username = ?", username).First(&user).Error
     if err != nil {
         return ""
     }
@@ -154,13 +162,7 @@ func Init(lite bool) *gorm.DB {
         }
     }
     //if the tables don't exist, create them
-    if db.Migrator().HasTable(&User{}) == false {
-        db.Migrator().CreateTable(&User{})
-    }
-    if db.Migrator().HasTable(&Key{}) == false {
-        db.Migrator().CreateTable(&Key{})
-    }
-    //create the admin user if it doesn't exist
+    db.AutoMigrate(&User{}, &Key{})
     if db.Where("username = ?", "admin").First(&User{}).RowsAffected == 0 {
         color.Yellow("Admin user does not exist, creating one")
         db.Create(&User{Username: "admin", ApiKey: os.Getenv("ADMIN_KEY")})

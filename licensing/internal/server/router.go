@@ -7,7 +7,7 @@ import (
     "errors"
     "strings"
     "gorm.io/gorm"
-    "fmt"
+    //"fmt"
     database "github.com/ruby-network/corlink/licensing/internal/db"
 )
 
@@ -38,7 +38,7 @@ func verifyContentType(w http.ResponseWriter, r *http.Request) error {
 func createApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
-    err = verifyHeaders([]string{"Authorization, User"}, r)
+    err = verifyHeaders([]string{"Authorization", "User"}, r)
     if err != nil { 
         w.WriteHeader(http.StatusBadRequest)
         json.NewEncoder(w).Encode(Response{"error", err.Error()})
@@ -62,23 +62,28 @@ func createApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         json.NewEncoder(w).Encode(Response{"error", "User not provided"})
         return
     }
+    err, keyFromDB := database.CreateUser(db, user) 
+    if err != nil {
+        w.WriteHeader(http.StatusConflict)
+        json.NewEncoder(w).Encode(Response{"error", err.Error()})
+        return
+    }
     w.WriteHeader(http.StatusOK)
-    keyFromDB := database.CreateUser(db, user) 
     json.NewEncoder(w).Encode(Response{"ok", keyFromDB})
-    fmt.Println("User " + user + " has been created with the API key " + keyFromDB)
     return
 }
 
 func deleteApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
-    err = verifyHeaders([]string{"Authorization"}, r)
+    err = verifyHeaders([]string{"Authorization", "User"}, r)
     if err != nil {
         w.WriteHeader(http.StatusBadRequest)
         json.NewEncoder(w).Encode(Response{"error", err.Error()})
         return
     }
     key := r.Header.Get("Authorization")
+    user := r.Header.Get("User")
     isAdminKey := database.OnlyAdmin(db, key[7:])
     if !isAdminKey {
         w.WriteHeader(http.StatusUnauthorized)
@@ -90,7 +95,7 @@ func deleteApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         json.NewEncoder(w).Encode(Response{"error", "Unauthorized"})
         return
     } 
-    userDeleted := database.DeleteUser(db, key[7:])
+    userDeleted := database.DeleteUser(db, user)
     if !userDeleted {
         w.WriteHeader(http.StatusNotFound)
         json.NewEncoder(w).Encode(Response{"error", "User not found"})
@@ -128,13 +133,13 @@ func getApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         json.NewEncoder(w).Encode(Response{"error", "User not provided"})
         return
     }
-    w.WriteHeader(http.StatusOK)
     keyFromDB, validUser := database.GetApiKey(db, user)
     if !validUser {
         w.WriteHeader(http.StatusNotFound)
         json.NewEncoder(w).Encode(Response{"error", "User not found"})
         return
     }
+    w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(Response{"ok", keyFromDB})
     return
 }
@@ -142,13 +147,14 @@ func getApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 func updateApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
     err := verifyContentType(w, r)
     if err != nil { return }
-    err = verifyHeaders([]string{"Authorization"}, r)
+    err = verifyHeaders([]string{"Authorization", "User"}, r)
     if err != nil {
         w.WriteHeader(http.StatusBadRequest)
         json.NewEncoder(w).Encode(Response{"error", err.Error()})
         return
     }
     key := r.Header.Get("Authorization")
+    user := r.Header.Get("User")
     isAdminKey := database.OnlyAdmin(db, key[7:])
     if !isAdminKey {
         w.WriteHeader(http.StatusUnauthorized)
@@ -161,7 +167,7 @@ func updateApiKey(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
         return
     }
     w.WriteHeader(http.StatusOK)
-    keyFromDB := database.UpdateUserKey(db, key[7:])
+    keyFromDB := database.UpdateUserKey(db, user) 
     json.NewEncoder(w).Encode(Response{"ok", keyFromDB})
     return
 }
