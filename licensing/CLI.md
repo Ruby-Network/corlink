@@ -1,5 +1,15 @@
 # CLI Usage
 
+### Table of Contents:
+
+- [Introduction](#introduction)
+- [Ways to install](#ways-to-install)
+- [Usage](#usage)
+
+### Introduction:
+
+The corlink server comes with a CLI to make it easier to run the server. The CLI is written in Go and is available as a binary, npm package, and docker image.
+
 ### Ways to install:
 
 - **npm**:
@@ -16,7 +26,7 @@
     ```bash
     docker run -d -p 8080:8080 motortruck1221/corlink
     ```
-    Or you can use the `docker-compose.yml` file: [../docker-compose.yml](../docker-compose.yml)
+    Or you can use the `docker-compose.yml` file: [./docker-compose.yml](./docker-compose.yml)
 
 - **release**:
   You can download the latest release from the [releases page](https://github.com/ruby-network/corlink/releases).
