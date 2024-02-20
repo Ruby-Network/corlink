@@ -44,10 +44,13 @@ DB_NAME=changeme
 DB_PORT=5432
 ```
 
-Edit the values to match your database and set the `ADMIN_KEY` to a random string.
+> [!WARNING]
+> Make sure to have POSTGRES installed and running. If you don't have POSTGRES installed, you can use SQLITE instead.
 
 > [!IMPORTANT]
 > If you want, you can use SQLITE instead of POSTGRES. If you choose to do this (not recommended), you don't need to add the `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, or `DB_PORT` to the `.env` file. The server will also, automatically create the db file.
+
+Edit the values to match your database and set the `ADMIN_KEY` to a random string.
 
 
 To run with default settings:
