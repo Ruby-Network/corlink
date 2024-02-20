@@ -47,7 +47,8 @@ DB_PORT=5432
 Edit the values to match your database and set the `ADMIN_KEY` to a random string.
 
 > [!NOTE]
-> If you want, you can use SQLITE instead of POSTGRES using the `-s` flag. This is not recommended.
+> If you want, you can use SQLITE instead of POSTGRES. If you choose to do this (not recommended), you don't need to add the `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, or `DB_PORT` to the `.env` file. The server will also, automatically create the db file.
+
 
 To run with default settings:
 ```bash
