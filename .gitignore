@@ -1,1 +1,3 @@
 licensing/tmp/
+bot/node_modules/
+bot/.env
