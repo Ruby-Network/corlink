@@ -1,9 +1,3 @@
-@bot.register_application_command(:admin, 'Create a user and return their API key', server_id: ENV['GUILD_ID']) do |cmd|
-  cmd.subcommand('createuser', 'Create a user and return their API key') do |sub|
-    sub.string('username', 'The username of the user', required: true)
-  end
-end
-
 @bot.application_command(:admin).subcommand(:createuser) do |event|
   #make sure the user is an admin or the owner of the discord server 
   if !event.user.permission?(:administrator) && event.user.id != ENV['OWNER_ID'].to_i 
@@ -13,8 +7,8 @@ end
     begin
       user_id = event.server.members.find { |member| member.username == username }.id
       user = event.server.members.find { |member| member.username == username }
-    rescue
-      event.respond(content: "Error: something went wrong.", ephemeral: true)
+    rescue 
+      event.respond(content: "Error: something went wrong. (The user most likely doesn't exist)", ephemeral: true)
     end
     if user.bot_account?
       event.respond(content: "You can't create an API key for a bot account.")
@@ -28,7 +22,7 @@ end
       if http.code == 200
         response = JSON.parse(http.body)
         api_key = response["message"]
-        event.send_message(content: "User created! Run `/getapikey " + username + "` to get their API key.", ephemeral: true)
+        event.send_message(content: "User created! Have the user run `/getapikey` to get their API key.", ephemeral: true)
       else 
         event.send_message(content: "Error: something went wrong.", ephemeral: true)
       end
