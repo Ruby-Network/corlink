@@ -1,3 +1,4 @@
 licensing/tmp/
+licensing/.env
 bot/.env
 bot/vendor/
