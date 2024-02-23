@@ -23,6 +23,7 @@ type Key struct {
     gorm.Model
     Key string
     UserID uint
+    Used bool
     Expires time.Time
 }
 
@@ -62,6 +63,10 @@ func VerifyKey(db *gorm.DB, key string) bool {
     if k.ID == 0 {
         return false
     }
+    if k.Used {
+        return false
+    }
+    db.Model(&k).Update("used", true)
     return true
 }
 
