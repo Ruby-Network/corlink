@@ -2,3 +2,7 @@ licensing/tmp/
 licensing/.env
 bot/.env
 bot/vendor/
+packages/express/node_modules/
+packages/express/package-lock.json
+packages/express/test/
+packages/express/dist/
