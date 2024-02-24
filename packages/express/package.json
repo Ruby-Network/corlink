@@ -1,0 +1,34 @@
+{
+    "name": "@rubynetwork/corlink-express-middleware",
+    "version": "1.0.0",
+    "description": "A simple package providing middleware for basic auth and authorization with a Corlink server",
+    "main": "dist/index.js",
+    "scripts": {
+        "compile": "babel src/ --out-dir dist/",
+        "install": "npm run compile"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ruby-network/corlink.git"
+    },
+    "keywords": [
+        "javascript",
+        "express",
+        "esm",
+        "express",
+        "middleware",
+        "cjs",
+        "corlink"
+    ],
+    "bugs": {
+        "url": "https://github.com/ruby-network/corlink/issues"
+    },
+    "homepage": "https://github.com/ruby-network/corlink#readme",
+    "author": "Ruby Network",
+    "license": "AGPL-3.0",
+    "dependencies": {
+        "@babel/cli": "^7.23.9",
+        "@babel/core": "^7.23.9",
+        "@babel/preset-env": "^7.23.9"
+    }
+}
