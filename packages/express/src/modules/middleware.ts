@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { Request, Response, NextFunction } from 'express';
 
 /**
     * @function corlink
@@ -8,15 +9,19 @@ import { readFileSync } from 'fs';
     * @param {string} corlinkAPIKey - A key used to authenticate with the corlink API server
     * @description This function is used to create a new instance of the corlink middleware
 **/
-function corlink(deniedFilePath, bareServerPath, corlinkUrl, corlinkAPIKey) {
+const corlink = (deniedFilePath: string, bareServerPath: string, corlinkUrl: string, corlinkAPIKey: string) => {
+    //@ts-expect-error `this` object is not undefined
     this.deniedFilePath = deniedFilePath;
+    //@ts-expect-error `this` object is not undefined
     this.bareServerPath = bareServerPath;
+    //@ts-expect-error `this` object is not undefined
     this.corlinkUrl = corlinkUrl;
+    //@ts-expect-error `this` object is not undefined
     this.corlinkAPIKey = corlinkAPIKey;
     return { deniedFilePath, bareServerPath, corlinkUrl, corlinkAPIKey }
 }
 
-async function externallyValidateCookies(cookies) {
+async function externallyValidateCookies(cookies: any) {
     try {
         if (cookies === undefined || cookies === null) {
             throw new Error('The cookies are not valid');
@@ -33,7 +38,7 @@ async function externallyValidateCookies(cookies) {
     }
 }
 
-async function cookieValidator(cookies, fileContent, res) {
+async function cookieValidator(cookies: any, fileContent: any, res: Response) {
     try {
         await externallyValidateCookies(cookies.userIsVerified);
     }
@@ -44,12 +49,12 @@ async function cookieValidator(cookies, fileContent, res) {
     }
 }
 
-function fail(res, fileContent) {
+function fail(res: Response, fileContent: any) {
     res.setHeader('Content-Type', 'text/html');
     res.send(fileContent);
 }
 
-async function verifyUser(key, corlinkUrl, corlinkAPIKey) {
+async function verifyUser(key: string, corlinkUrl: string, corlinkAPIKey: string) {
     if (corlinkUrl[corlinkUrl.length - 1] !== '/') {
         corlinkUrl += '/';
     }
@@ -80,16 +85,16 @@ async function verifyUser(key, corlinkUrl, corlinkAPIKey) {
 
 /**
     * @function middleware
-    * @param {corlinkInstance} corlinkInstance - An instance of the corlink middlewarw
+    * @param {corlinkInstance} corlinkInstance - An instance of the corlink middleware 
 **/
-function middleware(corlinkInstance) {
+function middleware(corlinkInstance: any) {
     corlinkInstance = corlinkInstance || {};
     try {
         const t = corlinkInstance.corlinkInstance.deniedFilePath;
         const p = corlinkInstance.corlinkInstance.bareServerPath;
         const t2 = corlinkInstance.corlinkInstance.corlinkUrl;
         const p2 = corlinkInstance.corlinkInstance.corlinkAPIKey;
-        if (t === undefined || p === undefined || t === '' || p === '' || t === null || p === null, t2 === undefined || p2 === undefined || t2 === '' || p2 === '' || t2 === null || p2 === null) {
+        if (t === undefined || p === undefined || t === '' || p === '' || t === null || p === null || t2 === undefined || p2 === undefined || t2 === '' || p2 === '' || t2 === null || p2 === null) {
             throw new Error('The instance is not valid');
         }
     }
@@ -102,7 +107,7 @@ function middleware(corlinkInstance) {
     catch (e) {
         throw new Error('The file could not be read');
     }
-    return async function (req, res, next) {
+    return async function (req: Request, res: Response, next: NextFunction) {
         const file = readFileSync(corlinkInstance.corlinkInstance.deniedFilePath, 'utf8');
         const authHeader = req.headers.authorization; 
         const corlinkUrl = corlinkInstance.corlinkInstance.corlinkUrl;
@@ -123,6 +128,7 @@ function middleware(corlinkInstance) {
             fail(res, file);
             return;
         }
+        //@ts-expect-error buffer error
         const auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
         const user = auth[0];
         const pass = auth[1];
