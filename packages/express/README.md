@@ -3,6 +3,8 @@
 This middleware allows you to get started with using Corlink in your existing Express applications easily and simply.
 
 ## Usage
+> [!IMPORTANT]
+> This middleware requires the `cookie-parser` middleware to be used before it.
 
 - ECMAScript 
 
