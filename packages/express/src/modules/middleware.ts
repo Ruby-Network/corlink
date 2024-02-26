@@ -1,25 +1,6 @@
 import { readFileSync } from 'fs';
 import { Request, Response, NextFunction } from 'express';
-
-/**
-    * @function corlink
-    * @param {string} deniedFilePath - The path to and html file that will be served to the client if the request is denied 
-    * @param {string} bareServerPath - The path to the server that will be used to serve the file 
-    * @param {string} corlinkUrl - A URL pointing to a corlink API server
-    * @param {string} corlinkAPIKey - A key used to authenticate with the corlink API server
-    * @description This function is used to create a new instance of the corlink middleware
-**/
-const corlink = (deniedFilePath: string, bareServerPath: string, corlinkUrl: string, corlinkAPIKey: string) => {
-    //@ts-expect-error `this` object is not undefined
-    this.deniedFilePath = deniedFilePath;
-    //@ts-expect-error `this` object is not undefined
-    this.bareServerPath = bareServerPath;
-    //@ts-expect-error `this` object is not undefined
-    this.corlinkUrl = corlinkUrl;
-    //@ts-expect-error `this` object is not undefined
-    this.corlinkAPIKey = corlinkAPIKey;
-    return { deniedFilePath, bareServerPath, corlinkUrl, corlinkAPIKey }
-}
+import { z } from 'zod';
 
 async function externallyValidateCookies(cookies: any) {
     try {
@@ -83,42 +64,72 @@ async function verifyUser(key: string, corlinkUrl: string, corlinkAPIKey: string
     }
 }
 
-/**
-    * @function middleware
-    * @param {corlinkInstance} corlinkInstance - An instance of the corlink middleware 
-**/
-function middleware(corlinkInstance: any) {
-    corlinkInstance = corlinkInstance || {};
-    try {
-        const t = corlinkInstance.corlinkInstance.deniedFilePath;
-        const p = corlinkInstance.corlinkInstance.bareServerPath;
-        const t2 = corlinkInstance.corlinkInstance.corlinkUrl;
-        const p2 = corlinkInstance.corlinkInstance.corlinkAPIKey;
-        if (t === undefined || p === undefined || t === '' || p === '' || t === null || p === null || t2 === undefined || p2 === undefined || t2 === '' || p2 === '' || t2 === null || p2 === null) {
-            throw new Error('The instance is not valid');
+function validate(options: any) {
+    const schema = z.object({
+        deniedFilePath: z.string(),
+        unlockedPaths: z.array(z.string()),
+        whiteListedURLs: z.array(z.string()),
+        corlinkUrl: z.string(),
+        corlinkAPIKey: z.string()
+    }).safeParse(options);
+    if (!schema.success) {
+        if (schema.error.format().corlinkUrl) {
+            throw new Error('The option corlinkUrl is not a string: ' + schema.error.format().corlinkUrl?._errors);
+        }
+        if (schema.error.format().corlinkAPIKey) {
+            throw new Error('The option corlinkAPIKey is not a string: ' + schema.error.format().corlinkAPIKey?._errors);
+        }
+        if (schema.error.format().deniedFilePath) {
+            throw new Error('The option deniedFilePath is not a string: ' + schema.error.format().deniedFilePath?._errors);
+        }
+        if (schema.error.format().unlockedPaths) {
+            throw new Error('The option unlockedPaths is not an array: ' + schema.error.format().unlockedPaths?._errors);
+        }
+        if (schema.error.format().whiteListedURLs) {
+            throw new Error('The option whiteListedURLs is not an array: ' + schema.error.format().whiteListedURLs?._errors);
         }
     }
-    catch (e) {
-        throw new Error('The instance is not valid');
-    }
+}
+
+
+/**
+    * @function middleware
+    * @param {Object} options - The options for the middleware
+    * @param {string} options.deniedFilePath - The path to the file that will be sent to the user if they are not verified 
+    * @param {string[]} options.unlockedPaths - The path to the server 
+    * @param {string[]} options.whiteListedURLs - The white listed URLs 
+    * @param {string} options.corlinkUrl - The corlink API URL 
+    * @param {string} options.corlinkAPIKey - The corlink API key 
+    * @returns {Function} - The middleware function 
+    * @description - This middleware function will verify the user using the corlink API 
+**/
+function middleware(options: any) {
+    validate(options);
     try {
-        readFileSync(corlinkInstance.corlinkInstance.deniedFilePath, 'utf8');
+        readFileSync(options.deniedFilePath, 'utf8');
     }
     catch (e) {
-        throw new Error('The file could not be read');
+        throw new Error('The file at the path ' + options.deniedFilePath + ' could not be read');
     }
     return async function (req: Request, res: Response, next: NextFunction) {
-        const file = readFileSync(corlinkInstance.corlinkInstance.deniedFilePath, 'utf8');
+        const file = readFileSync(options.deniedFilePath, 'utf8');
         const authHeader = req.headers.authorization; 
-        const corlinkUrl = corlinkInstance.corlinkInstance.corlinkUrl;
-        const corlinkAPIKey = corlinkInstance.corlinkInstance.corlinkAPIKey;
-        if (req.signedCookies.userIsVerified) {
+        const corlinkUrl = options.corlinkUrl;
+        const corlinkAPIKey = options.corlinkAPIKey;
+        if (options.whiteListedURLs.includes(req.headers.host)) {
             next();
             return;
         }
-        //credit: https://github.com/titaniumnetwork-dev/MasqrProject/blob/master/MasqrBackend/index.js#L75 for this trick too
+        if (options.unlockedPaths.includes(req.path)) {
+            next();
+            return;
+        }
+        if (req.signedCookies.userIsVerified) {
+            next();
+            return;
+        } 
         if (req.cookies.refreshcheck != "true") {
-            res.cookie('refreshcheck', 'true', { maxAge: 10000 });
+            res.cookie('refreshcheck', 'true', { sameSite: 'strict', secure: true });
             fail(res, file);
             return;
         }
@@ -128,7 +139,7 @@ function middleware(corlinkInstance: any) {
             fail(res, file);
             return;
         }
-        //@ts-expect-error buffer error
+        //@ts-expect-error buffer is not defined
         const auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
         const user = auth[0];
         const pass = auth[1];
@@ -136,18 +147,18 @@ function middleware(corlinkInstance: any) {
             await verifyUser(pass, corlinkUrl, corlinkAPIKey);
         }
         catch (e) {
+            console.log('User not verified');
             res.status(401);
             fail(res, file);
             return;
         }
-        // 1 year
         const maxCookieAge = 60 * 60 * 24 * 365;
-        //set the cookie to an encrypted version of the pass 
         res.cookie('userIsVerified', pass, { signed: true, maxAge: maxCookieAge, sameSite: 'strict', secure: true });
         //credit: https://github.com/titaniumnetwork-dev/MasqrProject/blob/master/MasqrBackend/index.js#L98 for this trick
+        console.log('User verified');
         res.send(`<script> window.location.href = window.location.href </script>`);
         return;
     }
 }
 
-export { middleware, corlink };
+export { middleware };

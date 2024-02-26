@@ -4,6 +4,7 @@
     "target": "es2016",
     "module": "esnext",
     // "rootDir": "./",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
