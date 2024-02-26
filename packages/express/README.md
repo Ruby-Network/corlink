@@ -4,7 +4,7 @@ This middleware allows you to get started with using Corlink in your existing Ex
 
 ## Usage
 > [!IMPORTANT]
-> This middleware requires the `cookie-parser` middleware to be used before it.
+> This middleware requires the `cookie-parser` middleware to be used before it. And `cooki-parser` needs to have signing enabled.
 
 - ECMAScript 
 
