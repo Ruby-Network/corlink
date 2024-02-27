@@ -15,7 +15,7 @@ import corlink from '@rubynetwork/corlink-fastify';
 const app = fastify({ logger: true });
 app.register(corlink, {
     //the file to serve when a user is denied access
-    deniedFilePath: path.join(__dirname, 'denied.html'),
+    deniedFilePath: path.join(__dirname, 'denied.html').toString(),
     //any file or route you want to be accessible without a valid Corlink token (e.g. Bare servers)
     unlockedPaths: ['/bare/'],
     //any domains you want corlink to ignore
@@ -54,7 +54,7 @@ const app = fastify({ logger: true });
 
 app.register(corlink, {
     //the file to serve when a user is denied access
-    deniedFilePath: path.join(__dirname, 'denied.html'),
+    deniedFilePath: path.join(__dirname, 'denied.html').toString(),
     //any file or route you want to be accessible without a valid Corlink token (e.g. Bare servers)
     unlockedPaths: ['/bare/'],
     //any domains you want corlink to ignore
