@@ -11,6 +11,7 @@ function verify(opts) {
         corlinkUrl: z.string(),
         corlinkAPIKey: z.string(),
         builtinCookieParser: z.boolean().optional(),
+        injectScript: z.boolean().optional(),
     }).safeParse(opts);
     if (!schema.success) {
         if (schema.error.format().corlinkUrl) {
