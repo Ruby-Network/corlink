@@ -4,8 +4,10 @@
     "description": "A simple package providing middleware for basic auth and authorization with a Corlink server",
     "main": "dist/index.js",
     "scripts": {
-        "compile": "babel src/ --out-dir dist/",
-        "install": "npm run compile"
+        "types": "tsc --declaration --emitDeclarationOnly --outDir dist/ --declarationMap",
+        "tsc": "tsc",
+        "compile": "babel src/ --out-dir dist/ --extensions '.ts' --extensions '.js'",
+        "install": "npm run types && npm run compile"
     },
     "repository": {
         "type": "git",
@@ -28,6 +30,14 @@
     "dependencies": {
         "@babel/cli": "^7.23.9",
         "@babel/core": "^7.23.9",
-        "@babel/preset-env": "^7.23.9"
+        "@babel/preset-env": "^7.23.9",
+        "@fastify/cookie": "^9.3.1",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@babel/preset-typescript": "^7.23.3",
+        "@types/node": "^20.11.20",
+        "fastify": "^4.26.1",
+        "fastify-plugin": "^4.5.1"
     }
 }
