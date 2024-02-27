@@ -9,7 +9,8 @@ function verify(opts) {
         unlockedPaths: z.array(z.string()),
         whiteListedURLs: z.array(z.string()),
         corlinkUrl: z.string(),
-        corlinkAPIKey: z.string()
+        corlinkAPIKey: z.string(),
+        builtinCookieParser: z.boolean().optional(),
     }).safeParse(opts);
     if (!schema.success) {
         if (schema.error.format().corlinkUrl) {
@@ -81,10 +82,12 @@ const plugin = (fastify, opts, done) => {
     } catch (error) {
         throw new Error('The deniedFilePath does not exist');
     }
-    fastify.register(fastifyCookie, {
-        secret: opts.corlinkAPIKey, 
-        parseOptions: {}
-    });
+    if (opts.builtinCookieParser) {
+        fastify.register(fastifyCookie, {
+            secret: opts.corlinkAPIKey, 
+            parseOptions: {}
+        });
+    }
     fastify.addHook('onRequest', function (req, reply, next) {
         const file = readFileSync(opts.deniedFilePath, 'utf8');
         const authHeader = req.headers.authorization;
@@ -124,7 +127,7 @@ const plugin = (fastify, opts, done) => {
             return;
         }
         else {
-            reply.setCookie('userIfVerified', 'true', { path: '/', sameSite: 'strict', secure: true, maxAge: 10000 }).type('text/html').send('<script>window.location.href = window.location.href</script>');
+            reply.setCookie('userIfVerified', pass, { path: '/', sameSite: 'strict', secure: true, maxAge: 10000 }).type('text/html').send('<script>window.location.href = window.location.href</script>');
             return;
         }
     });
@@ -138,6 +141,7 @@ const plugin = (fastify, opts, done) => {
     * @property {string[]} whiteListedURLs - The URLs that are not going to be checked by corlink 
     * @property {string} corlinkUrl - The URL of the corlink API 
     * @property {string} corlinkAPIKey - The API key of the corlink API 
+    * @property {boolean} builtinCookieParser - Whether to use the built-in cookie parser or not
 **/
 const corlink = fp(plugin, {
     fastify: '4.x',
