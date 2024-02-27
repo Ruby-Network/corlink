@@ -6,3 +6,7 @@ packages/express/node_modules/
 packages/express/package-lock.json
 packages/express/test/
 packages/express/dist/
+packages/fastify/node_modules/
+packages/fastify/package-lock.json
+packages/fastify/test/
+packages/fastify/dist/
