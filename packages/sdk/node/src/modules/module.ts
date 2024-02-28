@@ -1,19 +1,94 @@
-import { verify, schema } from './sdk.js';
+import { schema } from './sdk.js';
 import { z } from 'zod';
 
-/**
-    * @function createUser
-    * @description - A function to create a user using the Corlink API
-    * @param {Object} opts - Options from the corlink function 
-    * @param {string} user - The user to create 
-    * @returns {void}
-    * @throws {Error} - If the options are invalid
-    * @example 
-    * const opts = new corlink({ corlinkAPIUrl: 'https://corlinkapi.com', corlinkAPIKey: '12345' });
-    * createUser(opts, 'user');
-**/
-function createuser(opts: z.infer<typeof schema>, user: string) {
-    console.log('Creating user: ' + user);
+function error(message: string) {
+    console.error(message);
+    return;
 }
 
-export { createuser };
+async function createkey(opts: z.infer<typeof schema>) {
+    if (opts.corlinkAPIUrl.slice(-1) !== '/') {
+        opts.corlinkAPIUrl += '/';
+    }
+    try {
+        const resp = await fetch(opts.corlinkAPIUrl + 'generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + opts.corlinkAPIKey,
+            },
+        });
+        const data = await resp.json();
+        if (data.status !== "ok") {
+            error('Error: ' + data.message);
+            return;
+        }
+        return data;
+    }
+    catch (e) {
+        error('Error: ' + e);
+        return;
+    }
+}
+
+async function deletekey(opts: z.infer<typeof schema>, apiKey: string) {
+    if (opts.corlinkAPIUrl.slice(-1) !== '/') {
+        opts.corlinkAPIUrl += '/';
+    }
+    try {
+        const resp = await fetch(opts.corlinkAPIUrl + 'delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + opts.corlinkAPIKey,
+                'Key': apiKey,
+            },
+        });
+        const data = await resp.json();
+        if (data.status !== "ok") {
+            error('Error: ' + data.message);
+            return;
+        }
+        if (data.message !== "Deleted") {
+            error('Error: ' + data.message);
+            return;
+        }
+        return data;
+    }
+    catch (e) {
+        error('Error: ' + e);
+        return;
+    }
+}
+
+async function verifykey(opts: z.infer<typeof schema>, key: string) {
+    if (opts.corlinkAPIUrl.slice(-1) !== '/') {
+        opts.corlinkAPIUrl += '/';
+    }
+    try {
+        const resp = await fetch(opts.corlinkAPIUrl + 'verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + opts.corlinkAPIKey,
+                'Key': key,
+            },
+        });
+        const data = await resp.json();
+        if (data.status !== "ok") {
+            error('Error: ' + data.message);
+            return;
+        }
+        if (data.message !== "Authorized") {
+            error('Error: ' + data.message);
+            return;
+        }
+        return data;
+    }
+    catch (e) {
+        error('Error: ' + e);
+        return;
+    }
+}
+
+export { createkey, deletekey, verifykey };

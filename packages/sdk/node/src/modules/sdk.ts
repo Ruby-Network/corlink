@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createuser } from './module.js'
+import { createkey, deletekey, verifykey } from './module.js';
 
 const schema = z.object({
     corlinkAPIUrl: z.string(),
@@ -27,8 +27,17 @@ class Corlink {
         verify(opts);
         this.opts = opts;
     }
-    createUser(user: string) {
-        createuser(this.opts, user);
+    async createKey() {
+        const data = await createkey(this.opts);
+        return data;
+    }
+    async deleteKey(apiKey: string) {
+        const data = await deletekey(this.opts, apiKey);
+        return data;
+    }
+    async verifyKey(key: string) {
+        const data = await verifykey(this.opts, key);
+        return data;
     }
 }
 
