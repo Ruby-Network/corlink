@@ -10,3 +10,15 @@ packages/fastify/node_modules/
 packages/fastify/package-lock.json
 packages/fastify/test/
 packages/fastify/dist/
+packages/sdk/node_modules/
+packages/sdk/package-lock.json
+packages/sdk/test/
+packages/sdk/dist/
+packages/sdk/node/node_modules/
+packages/sdk/node/package-lock.json
+packages/sdk/node/test/
+packages/sdk/node/dist/
+packages/sdk/browser/node_modules/
+packages/sdk/browser/package-lock.json
+packages/sdk/browser/test/
+packages/sdk/browser/dist/
