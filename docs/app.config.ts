@@ -2,21 +2,15 @@ export default defineAppConfig({
   docus: {
     title: 'Corlink',
     description: 'The best place to start your documentation.',
-    image: 'https://user-images.githubusercontent.com/904724/185365452-87b7ca7b-6030-4813-a2db-5e65c785bf88.png',
+    image: 'https://vercel.com/favicon.ico',
     socials: {
-      twitter: 'nuxt_js',
-      github: 'nuxt-themes/docus',
-      nuxt: {
-        label: 'Nuxt',
-        icon: 'simple-icons:nuxtdotjs',
-        href: 'https://nuxt.com'
-      }
+      github: 'ruby-network/corlink',
     },
     github: {
-      dir: '.starters/default/content',
+      dir: 'docs/content',
       branch: 'main',
-      repo: 'docus',
-      owner: 'nuxt-themes',
+      repo: 'corlink',
+      owner: 'ruby-network',
       edit: true
     },
     aside: {
@@ -29,10 +23,17 @@ export default defineAppConfig({
       fluid: true
     },
     header: {
-      logo: true,
+      title: 'Corlink',
       showLinkIcon: true,
       exclude: [],
       fluid: true
+    },
+    footer: {
+        credits: {
+            icon: '',
+            text: 'Created By Ruby Network',
+            href: 'https://rubynetwork.co'
+        },
     }
   }
 })
