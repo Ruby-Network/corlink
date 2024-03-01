@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: corlink
+      POSTGRES_PASSWORD: corlink
+      POSTGRES_DB: corlink
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+  corlink-server:
+    restart: unless-stopped 
+    image: ghcr.io/ruby-network/corlink-server:latest
+    depends_on:
+      - postgres
+    ports:
+      # Do not edit port 8080 (if you don't want it exposed, remove ME!)
+      - "yourport:8080"
+    environment:
+      ADMIN_KEY: "yourkey"
+      DB_HOST: "postgres"
+      DB_USER: "corlink"
+      DB_PASSWORD: "corlink"
+      DB_NAME: "corlink"
+      DB_PORT: "5432"
+  corlink-bot:
+    restart: unless-stopped
+    image: ghcr.io/ruby-network/corlink-bot:latest
+    container_name: corlink-bot
+    environment:
+      DISCORD_TOKEN: "yourtoken"
+      GUILD_ID: "yourguildid"
+      LICENSING_SERVER_URL: corlink-server:8080
+      LICENSING_SERVER_KEY: $ADMIN_KEY
+      OWNER_ID: "yourownerid"
+networks:
+  default:
+    external:
+      name: corlink
