@@ -1,8 +1,8 @@
 export default defineAppConfig({
   docus: {
     title: 'Corlink',
-    description: 'The best place to start your documentation.',
-    image: 'https://vercel.com/favicon.ico',
+    description: 'Secure proxies, Effortlessly',
+    image: 'https://corlink.rubynetwork.co/favicon.ico',
     socials: {
       github: 'ruby-network/corlink',
     },
