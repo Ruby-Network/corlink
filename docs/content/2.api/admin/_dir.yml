@@ -1,0 +1,3 @@
+title: 'Admin Only'
+icon: lucide:lock
+navigation.redirect: /api/contents
