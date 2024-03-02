@@ -1,0 +1,30 @@
+name: Publish NPM Packages
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  express:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies 
+        run: cd packages/express && npm install 
+
+      - name: Build
+        run: cd packages/express && npm run compile
+
+      - name: Publish
+        run: cd packages/express && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
