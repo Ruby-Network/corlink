@@ -67,6 +67,8 @@ format:
 	@echo "Formatting..."
 	@go fmt
 
+all: clean download linux windows mac compress-all
+
 npm-linux: linux
 	@echo "Moving files to npm folders..."
 	@mv bin/corlink-server npm/linux-x64/corlink-server 
