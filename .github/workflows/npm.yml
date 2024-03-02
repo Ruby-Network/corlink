@@ -23,8 +23,7 @@ jobs:
 
       - name: Build
         run: cd packages/express && npm run compile
-
+      - name: Setup User 
+        run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
       - name: Publish
         run: cd packages/express && npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
