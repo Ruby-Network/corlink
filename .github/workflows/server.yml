@@ -18,7 +18,7 @@ jobs:
         with:
           go-version: 1.21.6
       - name: Build (AUR Only)
-        run: make linux && make compress
+        run: cd licensing/ && make linux && make compress
       - name: Push to bin/
         uses: EndBug/add-and-commit@v9
         with:
@@ -49,17 +49,17 @@ jobs:
         run: |
           sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
           git clone aur@aur.archlinux.org:corlink-server.git 
-          cp -rf ./README.md ./corlink-server/
-          cp -rf ./PKGBUILD ./corlink-server/
-          cp -rf ./LICENSE ./corlink-server/
+          cp -rf ./licensing/README.md ./corlink-server/
+          cp -rf ./licensing/PKGBUILD ./corlink-server/
+          cp -rf ./licensing/LICENSE ./corlink-server/
           cd corlink-server
           git config --global user.email "${{ secrets.AUR_EMAIL }}"
           git config --global user.name "${{ secrets.AUR_USERNAME }}"
-          cat PKGBUILD
+          cat ./licensing/PKGBUILD
       - name: Validate PKGBUILD 
         uses: motortruck1221/arch-linux-pkgbuild-package@v2.2.1
         with:
-          path: corlink-server 
+          path: corlink-server
           flags: ''
           namcap: false
           srcinfo: true
@@ -93,9 +93,9 @@ jobs:
         run: |
           sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
           git clone aur@aur.archlinux.org:corklink-server-git.git
-          cp -rf ./README.md ./corklink-server-git/
-          cp -rf ./PKGBUILD-git ./corklink-server-git/PKGBUILD
-          cp -rf ./LICENSE ./corklink-server-git/
+          cp -rf ./licensing/README.md ./corklink-server-git/
+          cp -rf ./licensing/PKGBUILD-git ./corklink-server-git/PKGBUILD
+          cp -rf ./licensing/LICENSE ./corklink-server-git/
           cd corlink-server-git
           git config --global user.email "${{ secrets.AUR_EMAIL }}"
           git config --global user.name "${{ secrets.AUR_USERNAME }}"
@@ -126,7 +126,7 @@ jobs:
         with:
           go-version: 1.21.6
       - name: Build (All) 
-        run: make all 
+        run: cd licensing/ && make all 
       - name: Upload binaries 
         uses: actions/upload-artifact@v4
         with:

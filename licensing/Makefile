@@ -67,19 +67,19 @@ format:
 	@echo "Formatting..."
 	@go fmt
 
-npm-linux: build-linux
+npm-linux: linux
 	@echo "Moving files to npm folders..."
 	@mv bin/corlink-server npm/linux-x64/corlink-server 
 	@mv bin/corlink-server-arm npm/linux-arm/corlink-server 
 	@mv bin/corlink-server-arm64 npm/linux-arm64/corlink-server 
 	@mv bin/corlink-server-386 npm/linux-ia32/corlink-server 
 
-npm-windows: build-windows
+npm-windows: windows
 	@echo "Moving files to npm folders..."
 	@mv bin/corlink-server.exe npm/win32-x64/corlink-server.exe 
 	@mv bin/corlink-server-386.exe npm/win32-ia32/corlink-server.exe
 
-npm-mac: build-mac
+npm-mac: mac
 	@echo "Moving files to npm folders..."
 	@mv bin/corlink-server-mac npm/darwin-x64/corlink-server 
 	@mv bin/corlink-server-mac-arm64 npm/darwin-arm64/corlink-server
