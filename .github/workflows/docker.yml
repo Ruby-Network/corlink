@@ -36,8 +36,7 @@ jobs:
         with:
           context: ./bot/
           file: ./bot/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          push: true
           tags: ${{ env.REGISTRY }}/corlink-bot:latest, ${{ env.REGISTRY }}/corlink-bot:${{ github.sha }}
