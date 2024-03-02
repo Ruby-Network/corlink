@@ -11,9 +11,7 @@ env:
 jobs:
   bot:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
+    permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -32,7 +30,6 @@ jobs:
           images: ${{ env.REGISTRY }}/corlink-bot
       - name: Build and push Docker image 
         id: docker_build
-        permissions: write-all
         uses: docker/build-push-action@v3
         with:
           context: ./bot/
