@@ -29,7 +29,7 @@ jobs:
         id: meta 
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/corlink-bot
+          images: ${{ env.REGISTRY }}/ruby-network/corlink-bot
       - name: Build and push Docker image 
         id: docker_build
         uses: docker/build-push-action@v3
@@ -38,4 +38,4 @@ jobs:
           file: ./bot/Dockerfile
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.REGISTRY }}/corlink-bot:latest, ${{ env.REGISTRY }}/corlink-bot:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/ruby-network/corlink-bot:latest, ${{ env.REGISTRY }}/ruby-network/corlink-bot:${{ github.sha }}
