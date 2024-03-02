@@ -1,6 +1,6 @@
 {
     "name": "@rubynetwork/corlink-linux-ia32",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "The built binary of corlink server for linux 32 bit",
     "repository": {
         "type": "git",

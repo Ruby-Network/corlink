@@ -84,4 +84,16 @@ npm-mac: build-mac
 	@mv bin/corlink-server-mac npm/darwin-x64/corlink-server 
 	@mv bin/corlink-server-mac-arm64 npm/darwin-arm64/corlink-server
 
+npm-publish:
+	@echo "Publishing to npm..."
+	@cd npm/linux-x64 && npm publish --access public
+	@cd npm/linux-arm && npm publish --access public
+	@cd npm/linux-arm64 && npm publish --access public
+	@cd npm/linux-ia32 && npm publish --access public
+	@cd npm/win32-x64 && npm publish --access public
+	@cd npm/win32-ia32 && npm publish --access public
+	@cd npm/darwin-x64 && npm publish --access public
+	@cd npm/darwin-arm64 && npm publish --access public
+	@cd npm/corlink-server && npm publish --access public
+
 npm: npm-linux npm-windows npm-mac

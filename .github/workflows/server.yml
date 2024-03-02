@@ -1,0 +1,188 @@
+name: Build, Upload and Release Binaries
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  aur-build:
+    name: Build Binary for AUR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install UPX
+        run: sudo apt update && sudo apt install -y upx 
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.6
+      - name: Build (AUR Only)
+        run: make linux && make compress
+      - name: Push to bin/
+        uses: EndBug/add-and-commit@v9
+        with:
+          push: origin HEAD:main
+          add: bin/corlink-server --force
+          author_name: motortruck1221
+          author_email: motortruck1221@protonmail.com
+  aur-binary:
+    needs: aur-build
+    name: Upload to AUR (binary) 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+      - name: Install UPX
+        run: sudo apt update && sudo apt install -y upx
+      - name: Extract tag 
+        id: extract_tag
+        run: echo "::set-output name=version::$(echo ${GITHUB_REF#refs/tags/} | sed 's/^v//')"
+      - name: Setup SSH Key 
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur 
+          chmod 600 ~/.ssh/aur 
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+          echo -e "Host aur.archlinux.org\n\tIdentityFile ~/.ssh/aur\n\tUser aur" > ~/.ssh/config
+      - name: Pull changes from AUR 
+        run: |
+          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
+          git clone aur@aur.archlinux.org:corlink-server.git 
+          cp -rf ./README.md ./corlink-server/
+          cp -rf ./PKGBUILD ./corlink-server/
+          cp -rf ./LICENSE ./corlink-server/
+          cd corlink-server
+          git config --global user.email "${{ secrets.AUR_EMAIL }}"
+          git config --global user.name "${{ secrets.AUR_USERNAME }}"
+          cat PKGBUILD
+      - name: Validate PKGBUILD 
+        uses: motortruck1221/arch-linux-pkgbuild-package@v2.2.1
+        with:
+          path: corlink-server 
+          flags: ''
+          namcap: false
+          srcinfo: true
+          updpkgsums: true
+      - name: Push changes to AUR 
+        run: |
+          cd corlink-server
+          git add .
+          git commit -m "Update to ${{ steps.extract_tag.outputs.version }}"
+          git push
+  aur-git:
+    needs: aur-build
+    name: Upload to AUR (git)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+      - name: Install UPX 
+        run: sudo apt update && sudo apt install -y upx
+      - name: Extract tag 
+        id: extract_tag
+        run: echo "::set-output name=version::$(echo ${GITHUB_REF#refs/tags/} | sed 's/^v//')"
+      - name: Setup SSH Key 
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur 
+          chmod 600 ~/.ssh/aur 
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+          echo -e "Host aur.archlinux.org\n\tIdentityFile ~/.ssh/aur\n\tUser aur" > ~/.ssh/config
+      - name: Pull changes from AUR 
+        run: |
+          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
+          git clone aur@aur.archlinux.org:corklink-server-git.git
+          cp -rf ./README.md ./corklink-server-git/
+          cp -rf ./PKGBUILD-git ./corklink-server-git/PKGBUILD
+          cp -rf ./LICENSE ./corklink-server-git/
+          cd corlink-server-git
+          git config --global user.email "${{ secrets.AUR_EMAIL }}"
+          git config --global user.name "${{ secrets.AUR_USERNAME }}"
+          cat PKGBUILD
+      - name: Validate PKGBUILD 
+        uses: motortruck1221/arch-linux-pkgbuild-package@v2.2.1
+        with:
+          path: corlink-server-git 
+          flags: ''
+          namcap: false
+          srcinfo: true
+          updpkgsums: true
+      - name: Push changes to AUR 
+        run: |
+          cd corklink-server-git
+          git add .
+          git commit -m "Update to ${{ steps.extract_tag.outputs.version }}"
+          git push
+  build-binaries:
+    name: Build Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install UPX
+        run: sudo apt update && sudo apt install -y upx
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.6
+      - name: Build (All) 
+        run: make all 
+      - name: Upload binaries 
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: bin/
+          retention-days: 1
+  download-upload-release:
+    name: Download & Upload Binaries to Release
+    runs-on: ubuntu-latest
+    needs: build-binaries
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+      - name: Download binaries 
+        uses: actions/download-artifact@v4
+        with:
+          #download the binaries from the binaries job 
+          name: binaries
+          path: bin/
+          # binaries worflow run id
+      - name: Make binaries executable 
+        run: chmod +x bin/*
+      - name: Upload to release 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          #get the release event when in beta 
+          release=$(gh release list --limit 1 | awk '{print $1}')
+          # upload the artifact to the release
+          gh release upload $release bin/corlink-server --clobber
+          gh release upload $release bin/corlink-server-arm64 --clobber
+          gh release upload $release bin/corlink-server-arm --clobber
+          gh release upload $release bin/corlink-server-386 --clobber
+          gh release upload $release bin/corlink-server.exe --clobber
+          gh release upload $release bin/corlink-server-mac --clobber
+          gh release upload $release bin/corlink-server-mac-arm64 --clobber 
+          gh release upload $release bin/corlink-server-compressed --clobber
+          gh release upload $release bin/corlink-server-arm64-compressed --clobber
+          gh release upload $release bin/corlink-server-arm-compressed --clobber
+          gh release upload $release bin/corlink-server-386-compressed --clobber
+          gh release upload $release bin/corlink-server-compressed.exe --clobber
+          gh release upload $release bin/corlink-server-mac-compressed --clobber
+          gh release upload $release bin/corlink-server-mac-arm64-compressed --clobber
+  npm:
+    name: Publish packages to NPM 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+    - name: Build binaries 
+      run: cd licensing/ && make npm
+    - name: Setup User 
+      run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
+    - name: Publish 
+      run: cd licensing/ && make npm-publish

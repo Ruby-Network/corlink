@@ -1,6 +1,6 @@
 {
     "name": "@rubynetwork/corlink-linux-x64",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "The built binary of corlink server for linux x64",
     "repository": {
         "type": "git",
