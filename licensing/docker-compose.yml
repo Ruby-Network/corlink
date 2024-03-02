@@ -9,11 +9,19 @@ services:
       POSTGRES_DB: corlink
     volumes:
       - ./db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corlink"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   corlink-server:
     restart: unless-stopped
     image: ghcr.io/ruby-network/corlink-server:latest
     depends_on:
+      postgres:
+        condition: service_healthy
+    links:
       - postgres
     ports:
       # DO NOT CHANGE 8080 
