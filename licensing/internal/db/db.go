@@ -30,7 +30,7 @@ type Key struct {
 
 func deleteExpiredKeys(db *gorm.DB) {
     //delete keys that have expired from about 7 or more days ago
-    db.Where("expires < ?", time.Now().AddDate(0, 0, -7)).Delete(&Key{})
+    db.Where("expires < ?", time.Now().AddDate(0, 0, -7)).Unscoped().Delete(&Key{})
 }
 
 func DeleteExpiredKeys(db *gorm.DB) {
