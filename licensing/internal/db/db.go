@@ -52,7 +52,9 @@ func GenerateKey(db *gorm.DB, user User) string {
         }
     }
     //expires in a year 
-    expires := time.Now().AddDate(1, 0, 0)
+    //expires := time.Now().AddDate(1, 0, 0)
+    //expires in 5 minutes for testing
+    expires := time.Now().Add(2 * time.Minute)
     db.Create(&Key{Key: string(key), UserID: user.ID, Expires: expires})
     return string(key)
 }
@@ -71,7 +73,7 @@ func VerifyKey(db *gorm.DB, key string) bool {
 }
 
 func DeleteKey(db *gorm.DB, key string) {
-    db.Where("key = ?", key).Delete(&Key{})
+    db.Where("key = ?", key).Unscoped().Delete(&Key{})
 }
 
 func generateApiKey() string {

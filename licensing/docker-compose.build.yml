@@ -36,3 +36,12 @@ services:
       DB_PASS: corlink
       DB_NAME: corlink
       DB_PORT: 5432
+  adminer:
+    image: adminer:latest
+    ports:
+      - 8081:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
