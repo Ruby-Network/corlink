@@ -1,6 +1,6 @@
 {
     "name": "@rubynetwork/corlink-sdk-node",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A package for easily interacting with a Corlink Server",
     "main": "dist/index.js",
     "scripts": {

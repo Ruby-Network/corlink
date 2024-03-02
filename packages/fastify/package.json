@@ -1,6 +1,6 @@
 {
     "name": "@rubynetwork/corlink-fastify",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A simple package providing middleware for basic auth and authorization with a Corlink server",
     "main": "dist/index.js",
     "scripts": {
