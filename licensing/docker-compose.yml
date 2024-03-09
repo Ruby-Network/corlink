@@ -2,7 +2,7 @@ version: '3'
 services:
   postgres:
     restart: unless-stopped
-    image: postgres:latest
+    image: postgres:16.2
     environment:
       POSTGRES_USER: corlink
       POSTGRES_PASSWORD: corlink
