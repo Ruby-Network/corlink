@@ -16,17 +16,14 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
-      - name: CD into the directory
-        run: cd packages/express
-        id: cd
-      - name: Install Dependencies 
-        run: npm install 
+      - name: Install Dependencies
+        run: cd packages/express && npm install
       - name: Build
-        run: npm run compile
+        run: cd packages/express && npm run compile
       - name: Setup User 
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
       - name: Publish
-        run: npm publish --access public
+        run: cd packages/express && npm publish --access public
   fastify:
     runs-on: ubuntu-latest
     steps:
