@@ -93,9 +93,9 @@ jobs:
         run: |
           sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" ./licensing/PKGBUILD
           git clone aur@aur.archlinux.org:corlink-server-git.git
-          cp -rf ./licensing/README.md ./corklink-server-git/
-          cp -rf ./licensing/PKGBUILD-git ./corklink-server-git/PKGBUILD
-          cp -rf ./LICENSE ./corklink-server-git/
+          cp -rf ./licensing/README.md ./corlink-server-git/
+          cp -rf ./licensing/PKGBUILD-git ./corlink-server-git/PKGBUILD
+          cp -rf ./LICENSE ./corlink-server-git/
           cd corlink-server-git
           git config --global user.email "${{ secrets.AUR_EMAIL }}"
           git config --global user.name "${{ secrets.AUR_USERNAME }}"
@@ -110,7 +110,7 @@ jobs:
           updpkgsums: true
       - name: Push changes to AUR 
         run: |
-          cd corklink-server-git
+          cd corlink-server-git
           git add .
           git commit -m "Update to ${{ steps.extract_tag.outputs.version }}"
           git push
