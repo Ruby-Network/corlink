@@ -92,7 +92,7 @@ jobs:
       - name: Pull changes from AUR 
         run: |
           sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" ./licensing/PKGBUILD
-          git clone aur@aur.archlinux.org:corklink-server-git.git
+          git clone aur@aur.archlinux.org:corlink-server-git.git
           cp -rf ./licensing/README.md ./corklink-server-git/
           cp -rf ./licensing/PKGBUILD-git ./corklink-server-git/PKGBUILD
           cp -rf ./LICENSE ./corklink-server-git/
