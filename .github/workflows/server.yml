@@ -23,7 +23,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           push: origin HEAD:main
-          add: bin/corlink-server --force
+          add: ./licensing/bin/corlink-server --force
           author_name: motortruck1221
           author_email: motortruck1221@protonmail.com
   aur-binary:
@@ -131,8 +131,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries
-          path: bin/
-          retention-days: 1
+          path: ./licensing/bin/
+          retention-days: 2
   download-upload-release:
     name: Download & Upload Binaries to Release
     runs-on: ubuntu-latest
@@ -145,7 +145,7 @@ jobs:
         with:
           #download the binaries from the binaries job 
           name: binaries
-          path: bin/
+          path: ./licensing/bin/
           # binaries worflow run id
       - name: Make binaries executable 
         run: cd licensing/ && chmod +x bin/*
@@ -170,22 +170,4 @@ jobs:
           gh release upload $release bin/corlink-server-386-compressed --clobber
           gh release upload $release bin/corlink-server-compressed.exe --clobber
           gh release upload $release bin/corlink-server-mac-compressed --clobber
-          gh release upload $release bin/corlink-server-mac-arm64-compressed --clobber
-  npm:
-    name: Publish packages to NPM 
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
-    - name: Build binaries 
-      run: |
-        cd licensing/
-        make npm
-    - name: Setup User 
-      run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
-    - name: Publish 
-      run: cd licensing/ && make npm-publish
+          gh release upload $release bin/corlink-server-mac-arm64-compressed --clobber 

@@ -1,0 +1,24 @@
+{
+    "name": "@rubynetwork/corlink-client",
+    "version": "0.0.1",
+    "description": "A simple helper for a client using corlink",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ruby-network/corlink.git"
+    },
+    "keywords": [
+        "javascript",
+        "corlink"
+    ],
+    "bugs": {
+        "url": "https://github.com/ruby-network/corlink/issues"
+    },
+    "homepage": "https://github.com/ruby-network/corlink#readme",
+    "author": "Ruby Network",
+    "license": "AGPL-3.0",
+    "dependencies": {
+    },
+    "devDependencies": {
+    }
+}
