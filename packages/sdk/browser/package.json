@@ -16,7 +16,7 @@
     },
     "homepage": "https://github.com/ruby-network/corlink#readme",
     "author": "Ruby Network",
-    "license": "AGPL-3.0",
+    "license": "GPL-3.0",
     "dependencies": {
     },
     "devDependencies": {

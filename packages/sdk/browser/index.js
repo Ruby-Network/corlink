@@ -4,6 +4,6 @@ try {
         localStorage["auth"] = true;
     }
 }
-catch (e) {
-    console.log(e);
+catch {
+    // do nothing
 }
