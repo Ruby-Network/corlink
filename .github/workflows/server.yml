@@ -47,7 +47,7 @@ jobs:
           echo -e "Host aur.archlinux.org\n\tIdentityFile ~/.ssh/aur\n\tUser aur" > ~/.ssh/config
       - name: Pull changes from AUR 
         run: |
-          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
+          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" ./licensing/PKGBUILD
           git clone aur@aur.archlinux.org:corlink-server.git 
           cp -rf ./licensing/README.md ./corlink-server/
           cp -rf ./licensing/PKGBUILD ./corlink-server/
@@ -91,7 +91,7 @@ jobs:
           echo -e "Host aur.archlinux.org\n\tIdentityFile ~/.ssh/aur\n\tUser aur" > ~/.ssh/config
       - name: Pull changes from AUR 
         run: |
-          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" PKGBUILD
+          sed -i "s/pkgver=.*/pkgver=${{ steps.extract_tag.outputs.version }}/" ./licensing/PKGBUILD
           git clone aur@aur.archlinux.org:corklink-server-git.git
           cp -rf ./licensing/README.md ./corklink-server-git/
           cp -rf ./licensing/PKGBUILD-git ./corklink-server-git/PKGBUILD
@@ -148,11 +148,12 @@ jobs:
           path: bin/
           # binaries worflow run id
       - name: Make binaries executable 
-        run: chmod +x bin/*
+        run: cd licensing/ && chmod +x bin/*
       - name: Upload to release 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cd licensing/
           #get the release event when in beta 
           release=$(gh release list --limit 1 | awk '{print $1}')
           # upload the artifact to the release
@@ -181,7 +182,9 @@ jobs:
       with:
         node-version: '18'
     - name: Build binaries 
-      run: cd licensing/ && make npm
+      run: |
+        cd licensing/
+        make npm
     - name: Setup User 
       run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
     - name: Publish 
