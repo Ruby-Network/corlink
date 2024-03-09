@@ -12,49 +12,55 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: packages/express
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
       - name: Install Dependencies 
-        run: cd packages/express && npm install 
+        run: npm install 
       - name: Build
-        run: cd packages/express && npm run compile
+        run: npm run compile
       - name: Setup User 
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
       - name: Publish
-        run: cd packages/express && npm publish --access public
+        run: npm publish --access public
   fastify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: packages/fastify
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
       - name: Install Dependencies 
-        run: cd packages/fastify && npm install 
+        run: npm install 
       - name: Build
-        run: cd packages/fastify && npm run compile
+        run: npm run compile
       - name: Setup User 
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
       - name: Publish
-        run: cd packages/fastify && npm publish --access public
+        run: npm publish --access public
   node-sdk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: packages/sdk/node
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
       - name: Install Dependencies 
-        run: cd packages/sdk/node && npm install 
+        run: npm install 
       - name: Build
-        run: cd packages/sdk/node && npm run compile
+        run: npm run compile
       - name: Setup User 
         run: npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
       - name: Publish
-        run: cd packages/sdk/node && npm publish --access public
+        run: npm publish --access public
