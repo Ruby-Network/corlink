@@ -51,7 +51,7 @@ jobs:
           git clone aur@aur.archlinux.org:corlink-server.git 
           cp -rf ./licensing/README.md ./corlink-server/
           cp -rf ./licensing/PKGBUILD ./corlink-server/
-          cp -rf ./licensing/LICENSE ./corlink-server/
+          cp -rf ./LICENSE ./corlink-server/
           cd corlink-server
           git config --global user.email "${{ secrets.AUR_EMAIL }}"
           git config --global user.name "${{ secrets.AUR_USERNAME }}"
@@ -95,7 +95,7 @@ jobs:
           git clone aur@aur.archlinux.org:corklink-server-git.git
           cp -rf ./licensing/README.md ./corklink-server-git/
           cp -rf ./licensing/PKGBUILD-git ./corklink-server-git/PKGBUILD
-          cp -rf ./licensing/LICENSE ./corklink-server-git/
+          cp -rf ./LICENSE ./corklink-server-git/
           cd corlink-server-git
           git config --global user.email "${{ secrets.AUR_EMAIL }}"
           git config --global user.name "${{ secrets.AUR_USERNAME }}"
