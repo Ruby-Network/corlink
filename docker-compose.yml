@@ -10,14 +10,20 @@ services:
       POSTGRES_DB: corlink
     volumes:
       - ./postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corlink"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   corlink-server:
     restart: unless-stopped 
     image: ghcr.io/ruby-network/corlink-server:latest
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       # Do not edit port 8080 (if you don't want it exposed, remove ME!)
-      - "yourport:8080"
+      - "8080:8080"
     environment:
       ADMIN_KEY: "yourkey"
       DB_HOST: "postgres"
@@ -33,7 +39,7 @@ services:
       DISCORD_TOKEN: "yourtoken"
       GUILD_ID: "yourguildid"
       LICENSING_SERVER_URL: corlink-server:8080
-      LICENSING_SERVER_KEY: $ADMIN_KEY
+      LICENSING_SERVER_KEY: "yourkey"
       OWNER_ID: "yourownerid"
 networks:
   default:
