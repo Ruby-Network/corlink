@@ -68,34 +68,3 @@ format:
 	@go fmt
 
 all: clean download linux windows mac compress-all
-
-npm-linux: linux
-	@echo "Moving files to npm folders..."
-	@mv bin/corlink-server npm/@rubynetwork/linux-x64/corlink-server 
-	@mv bin/corlink-server-arm npm/@rubynetwork/linux-arm/corlink-server 
-	@mv bin/corlink-server-arm64 npm/@rubynetwork/linux-arm64/corlink-server 
-	@mv bin/corlink-server-386 npm/@rubynetwork/linux-ia32/corlink-server 
-
-npm-windows: windows
-	@echo "Moving files to npm folders..."
-	@mv bin/corlink-server.exe npm/@rubynetwork/win32-x64/corlink-server.exe 
-	@mv bin/corlink-server-386.exe npm/@rubynetwork/win32-ia32/corlink-server.exe
-
-npm-mac: mac
-	@echo "Moving files to npm folders..."
-	@mv bin/corlink-server-mac npm/@rubynetwork/darwin-x64/corlink-server 
-	@mv bin/corlink-server-mac-arm64 npm/@rubynetwork/darwin-arm64/corlink-server
-
-npm-publish:
-	@echo "Publishing to npm..."
-	@cd npm/@rubynetwork/linux-x64 && npm publish --access public
-	@cd npm/@rubynetwork/linux-arm && npm publish --access public
-	@cd npm/@rubynetwork/linux-arm64 && npm publish --access public
-	@cd npm/@rubynetwork/linux-ia32 && npm publish --access public
-	@cd npm/@rubynetwork/win32-x64 && npm publish --access public
-	@cd npm/@rubynetwork/win32-ia32 && npm publish --access public
-	@cd npm/@rubynetwork/darwin-x64 && npm publish --access public
-	@cd npm/@rubynetwork/darwin-arm64 && npm publish --access public
-	@cd npm/corlink-server && npm publish --access public
-
-npm: npm-linux npm-windows npm-mac
