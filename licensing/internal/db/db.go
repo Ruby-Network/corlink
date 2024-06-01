@@ -52,9 +52,9 @@ func GenerateKey(db *gorm.DB, user User) string {
         }
     }
     //expires in a year 
-    //expires := time.Now().AddDate(1, 0, 0)
+    expires := time.Now().AddDate(1, 0, 0)
     //expires in 5 minutes for testing
-    expires := time.Now().Add(2 * time.Minute)
+    //expires := time.Now().Add(2 * time.Minute)
     db.Create(&Key{Key: string(key), UserID: user.ID, Expires: expires})
     return string(key)
 }

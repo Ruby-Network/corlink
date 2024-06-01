@@ -34,3 +34,6 @@ docs/dist/
 docs/sw.*
 docs/.env/
 docs/.output/
+**/~/**
+~/
+testSite/

@@ -1,7 +1,7 @@
 @bot.application_command(:admin).subcommand(:createuser) do |event|
   #make sure the user is an admin or the owner of the discord server 
   event.defer
-  if !event.user.permission?(:administrator) && event.user.id != ENV['OWNER_ID'].to_i 
+  if !event.user.permission?(:administrator) || event.user.id != ENV['OWNER_ID'].to_i 
     event.send_message(content: "You don't have permission to use this command.", ephemeral: true)
   else
     username = event.options['username']
