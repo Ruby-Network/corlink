@@ -10,12 +10,12 @@
   <br />
   <a href="https://corlink.rubynetwork.co">Docs</a>
   <br />
-  <a href="https://discord.gg/bXJCZJZcJe">Discord</a> (open a ticket about getting a Corlink API key)
+  <a href="https://discord.gg/bWgw8469VS">Discord</a> (open a ticket about getting a Corlink API key)
   <br />
   <br />
 </div>
 
-[![Ruby Network Discord](https://invidget.switchblade.xyz/bXJCZJZcJe?theme=dark)](https://discord.gg/bXJCZJZcJe)
+[![Ruby Network Discord](https://invidget.switchblade.xyz/bWgw8469VS?theme=dark)](https://discord.gg/bWgw8469VS)
 
 ## Tech Stack
 
