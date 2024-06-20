@@ -1,2 +1,3 @@
 import { middleware } from './modules/middleware.js';
-export { middleware as corlinkExpress };
+import { masqr } from './modules/masqr.js';
+export { middleware as corlinkExpress, masqr };
