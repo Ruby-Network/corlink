@@ -1,13 +1,12 @@
 {
     "name": "@rubynetwork/corlink-express",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A simple package providing middleware for basic auth and authorization with a Corlink server",
     "main": "dist/index.js",
     "scripts": {
         "types": "tsc --declaration --emitDeclarationOnly --outDir dist/ --declarationMap",
         "tsc": "tsc",
-        "compile": "babel src/ --out-dir dist/ --extensions '.ts'",
-        "install": "npm run types && npm run compile"
+        "compile": "babel src/ --out-dir dist/ --extensions '.ts'"
     },
     "repository": {
         "type": "git",
