@@ -6,6 +6,7 @@ import fastifyCookie from '@fastify/cookie';
 function verify(opts) {
     const schema = z.object({
         deniedFilePath: z.string(),
+        v3: z.boolean(),
         unlockedPaths: z.array(z.string()),
         whiteListedURLs: z.array(z.string()),
         masqrUrl: z.string(),
@@ -23,6 +24,9 @@ function verify(opts) {
         }
         if (schema.error.format().whiteListedURLs) {
             throw new Error('The option whiteListedURLs is not an array: ' + schema.error.format().whiteListedURLs?._errors);
+        }
+        if (schema.error.format().v3) {
+            throw new Error('The option v3 is not a boolean: ' + schema.error.format().v3?._errors);
         }
     }
 }
@@ -45,7 +49,7 @@ async function verifyUser(pass, masqrUrl, host) {
     try {
         const t = await fetch(masqrUrl + pass + `&host=${host}`);
         const tt = await t.json();
-        if (!tt.status != "ok") {
+        if (!tt.status != "License valid") {
             throw new Error('The user is not verified');
         }
         else {
@@ -66,7 +70,9 @@ const plugin = (fastify, opts, done) => {
     try {
         readFileSync(opts.deniedFilePath);
     } catch (error) {
-        throw new Error('The deniedFilePath does not exist');
+        if (!opts.v3) {
+            throw new Error('The deniedFilePath does not exist');
+        }
     }
     if (opts.builtinCookieParser) {
         fastify.register(fastifyCookie, {
@@ -108,7 +114,11 @@ const plugin = (fastify, opts, done) => {
         const isVerified = verifyUser(pass, masqrUrl, req.hostname);
         if (!isVerified) {
             reply.status(401).header('WWW-Authenticate', 'Basic').type('text/html');
-            fail(reply, file);
+            if (!opts.v3) {
+                fail(reply, file);
+            } else {
+                fail(reply, readFileSync(`${req.hostname}.html`, 'utf8'));
+            }
             return;
         }
         else {

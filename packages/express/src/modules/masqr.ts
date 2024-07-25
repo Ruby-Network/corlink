@@ -39,7 +39,7 @@ async function verifyUser(key: string, masqrUrl: string, host?: string) {
     try {
         const t = await fetch(masqrUrl + key + `&host=${host}`);
         const tt = await t.json();
-        if (tt.status !== "ok") {
+        if (tt.status !== "License valid") {
             throw new Error('The user could not be verified');
         }
         else {
@@ -57,6 +57,7 @@ async function verifyUser(key: string, masqrUrl: string, host?: string) {
 function validate(options: any) {
     const schema = z.object({
         deniedFilePath: z.string(),
+        v3: z.boolean(),
         unlockedPaths: z.array(z.string()),
         whiteListedURLs: z.array(z.string()),
         masqrUrl: z.string(),
@@ -73,6 +74,9 @@ function validate(options: any) {
         }
         if (schema.error.format().whiteListedURLs) {
             throw new Error('The option whiteListedURLs is not an array: ' + schema.error.format().whiteListedURLs?._errors);
+        }
+        if (schema.error.format().v3) {
+            throw new Error('The option v3 is not a boolean: ' + schema.error.format().v3?._errors);
         }
     }
 }
@@ -95,7 +99,9 @@ function masqr(options: any) {
         readFileSync(options.deniedFilePath, 'utf8');
     }
     catch (e) {
-        throw new Error('The file at the path ' + options.deniedFilePath + ' could not be read');
+        if (!options.v3) {
+            throw new Error('The file at the path ' + options.deniedFilePath + ' could not be read');
+        }
     }
     return async function (req: Request, res: Response, next: NextFunction) {
         const file = readFileSync(options.deniedFilePath, 'utf8');
@@ -134,7 +140,12 @@ function masqr(options: any) {
         catch (e) {
             console.log('User not verified');
             res.status(401);
-            fail(res, file);
+            if (!options.v3) {
+                fail(res, file);
+            }
+            else {
+                fail(res, readFileSync(`${req.hostname}.html`, 'utf8'))
+            }
             return;
         }
         const maxCookieAge = 60 * 60 * 24 * 365;
